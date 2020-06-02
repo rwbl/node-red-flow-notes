@@ -52,11 +52,12 @@ The flow are stored in the files:
 * node-red-flow-notes-desktop.flow
 
 ## Installation
-Import the flows into Node-RED, either both or mobile / desktop only.
-The Node-RED tabs created are **Notes Mobile** and/or **Notes Desktop**.
-Copy the file **notes.json** to the folder **/home/pi**
-Depending username used, the path to the notes file has to be adjusted (Function node "Set Flow Context, Set flow.filename). Default is user "pi" with filename **/home/pi/notes.json**.
+* Import the flows into Node-RED, either both or mobile / desktop only.
+* The Node-RED tabs created are **Notes Mobile** and/or **Notes Desktop**.
+* Copy the file **notes.json** to the folder **/home/pi**
+* Depending username used, the path to the notes file has to be adjusted (Function node "Set Flow Context, Set flow.filename). Default is user "pi" with filename **/home/pi/notes.json**.
 
 **Notes**
 * Instead installing on a Raspberry Pi any other hardware can be used.
 * Application error handling is not fully covered.
+* If the list is cleared, recommend to clear the browser cache.
