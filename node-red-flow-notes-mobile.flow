@@ -1,0 +1,386 @@
+[
+    {
+        "id": "ca9a4de3.6ed31",
+        "type": "tab",
+        "label": "Notes Mobile",
+        "disabled": false,
+        "info": ""
+    },
+    {
+        "id": "b144f659.6254d",
+        "type": "function",
+        "z": "ca9a4de3.6ed31",
+        "name": "Set Dropdown Options",
+        "func": "// Set the dropdown options to select a note\n\n// Get the debug flag\nconst DEBUG = flow.get(\"debug\");\n\n// Function to sort a list of objects\n// Example: msglist.sort(setSortOrder(\"subject\"));\nfunction setSortOrder(prop) {    \n    return function(a, b) {    \n        if (a[prop] > b[prop]) {    \n            return 1;    \n        } else if (a[prop] < b[prop]) {    \n            return -1;    \n        }    \n        return 0;    \n    }    \n}    \n\n// Get the notes from the payload\nvar notes = msg.payload;\nif (notes === \"\") notes = [];\n// Set flowcontext\nflow.set(\"notes\",notes);\n// if (DEBUG) node.warn(\"File content:\" + notes);\n// Sort the msg.options list with note objects by subject\nnotes.sort(setSortOrder(\"subject\"));\n// if (DEBUG) node.warn(\"List sorted:\" + msg);\n\n// Clear the message to ensure all properties are removed\nmsg = {};\n\n// Buid the options array. init the array first.\nmsg.options = [];\n\n// Add the subject and id (as value) to the options\nnotes.forEach(function(item){\n    let obj = {};\n    obj[item.subject] = item.id;\n    msg.options.push(obj);\n});\n\n// Get the flow context lastid used to set the preselected note\n// If -1 no preselected note\nvar lastid = flow.get(\"lastid\") || -1;\nif (lastid === -1) {\n    if (notes.length > 0) {\n        lastid = notes[0].id;\n    }\n}\n\n// Return the preselected note as payload.\nmsg.payload = lastid;\n\nif (DEBUG) node.warn(msg);\n\nreturn msg;\n",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 740,
+        "y": 140,
+        "wires": [
+            [
+                "b636a303.d8b0c"
+            ]
+        ]
+    },
+    {
+        "id": "66df07cd.154858",
+        "type": "function",
+        "z": "ca9a4de3.6ed31",
+        "name": "Get Note",
+        "func": "// Select note from notes list using the note id\n\n// Get the debug flag\nconst DEBUG = flow.get(\"debug\");\n\n// Get the note id\nvar id = msg.payload;\n\n// Get all notes required to populate the form fields id, subject, content\nvar notes = flow.get(\"notes\");\n\n// Check if an item is found using the item id previous obtained from the payload\nfunction isItem(item) { \n    return item.id === id;\n}\n\n// Find the item and if found assign to the payload else set payload to undefined and the lastid is -1\nvar item = notes.find(isItem);\nif (item !== undefined) {\n    msg.payload = item;\n    if (DEBUG) node.warn(\"Subject:\" + msg.payload.subject + \",ID:\" + msg.payload.id + \",Content:\" + msg.payload.content);\n    flow.set(\"lastid\", item.id);\n}\nelse {\n    msg.payload = undefined;\n    flow.set(\"lastid\", -1);\n}\n\n// For debg only: Short form to get the item index in the notes array\nif (DEBUG) node.warn(\"LastID:\" + flow.get(\"lastid\") + \", Index:\" + notes.findIndex(item => item.id === id));\n\nreturn msg;\n",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 980,
+        "y": 200,
+        "wires": [
+            [
+                "64e5f38b.b97d4c"
+            ]
+        ]
+    },
+    {
+        "id": "1afc0e99.e93c69",
+        "type": "comment",
+        "z": "ca9a4de3.6ed31",
+        "name": "Notes Mobile v20200602",
+        "info": "Manage short notes i.e. scribbles.\n\n## Intro\nA note has an ID, subject and content.\nThe ID is set automatically.\nThe subject is mandatory and the content optional.\n\n## Storage\nThe notes are stored in a text file (default location _/home/pi/notes.json_) as JSON array.\n(pi is the user name)\n`[\n{\"id\":1,\"subject\":\"Note 1\",\"content\":\"Content of Note 1.\"},\n...\n{\"id\":N,\"subject\":\"Note N\",\"content\":\"Content of Note N.\"}\n]\n`\n## UI\nThe note is selected from a dropdown and the form fields ID, subject and content are populated.\nNote operations are:\n - Add - add new note. Subject mandatory. Duplicate subjects not checked.\n - Upd - update note selected.\n - Del - delete note selected.\n - Copy - copy note selected to clipboard.\n - Export - export the note to a text file default location _/home/pi/notes.exp_\n - Clear - clear all notes.\n \n",
+        "x": 150,
+        "y": 40,
+        "wires": []
+    },
+    {
+        "id": "b901aa26.9d785",
+        "type": "file",
+        "z": "ca9a4de3.6ed31",
+        "name": "Write File",
+        "filename": "",
+        "appendNewline": true,
+        "createDir": false,
+        "overwriteFile": "true",
+        "encoding": "none",
+        "x": 320,
+        "y": 220,
+        "wires": [
+            [
+                "a30c7f2d.9314c"
+            ]
+        ]
+    },
+    {
+        "id": "a30c7f2d.9314c",
+        "type": "file in",
+        "z": "ca9a4de3.6ed31",
+        "name": "Read File",
+        "filename": "",
+        "format": "utf8",
+        "chunk": false,
+        "sendError": false,
+        "encoding": "none",
+        "x": 320,
+        "y": 140,
+        "wires": [
+            [
+                "82cd54ea.b7487"
+            ]
+        ]
+    },
+    {
+        "id": "c01d0c57.1ebc6",
+        "type": "inject",
+        "z": "ca9a4de3.6ed31",
+        "name": "",
+        "topic": "",
+        "payload": "",
+        "payloadType": "str",
+        "repeat": "",
+        "crontab": "",
+        "once": true,
+        "onceDelay": 0.1,
+        "x": 110,
+        "y": 80,
+        "wires": [
+            [
+                "2ff86b42.d93174"
+            ]
+        ]
+    },
+    {
+        "id": "82cd54ea.b7487",
+        "type": "json",
+        "z": "ca9a4de3.6ed31",
+        "name": "Convert JSON",
+        "property": "payload",
+        "action": "",
+        "pretty": false,
+        "x": 500,
+        "y": 140,
+        "wires": [
+            [
+                "b144f659.6254d"
+            ]
+        ]
+    },
+    {
+        "id": "64e5f38b.b97d4c",
+        "type": "ui_template",
+        "z": "ca9a4de3.6ed31",
+        "group": "3a6fe6f6.6b3bc2",
+        "name": "Note Content",
+        "order": 2,
+        "width": 6,
+        "height": 11,
+        "format": "<!-- Define a form with 3 fields ID, Subject, Content -->\n<!-- Styling learned from: https://www.w3schools.com/css/css_form.asp -->\n<style>\ninput[type=text], select {\n  width: 100%;\n  padding: 4px 4px;\n  margin: 8px 0;\n  display: inline-block;\n  border: 1px solid #ccc;\n  border-radius: 4px;\n  box-sizing: border-box;\n}\ntextarea {\n  width: 100%;\n  height: 250px;\n  padding: 4px 4px;\n  box-sizing: border-box;\n  border: 2px solid #ccc;\n  border-radius: 4px;\n  background-color: #f8f8f8;\n  resize: none;\n}\n</style>\n<form>\n    <fieldset style=\"width:90%\">\n        <p style=\"font-weight: bold;\">Subject</p>\n        <p><input type=\"text\" id=\"fieldSubject\" ng-model=\"msg.payload.subject\"></p>\n\n        <p style=\"font-weight: bold;\">Content</p>\n        <p><textarea rows=\"10\" cols=\"50\" id=\"fieldContent\" ng-model=\"msg.payload.content\"></textarea></p>\n        <!-- <p><textarea rows=\"10\" cols=\"50\" id=\"fieldContent\">{{msg.payload.content}}</textarea></p> -->\n\n        <p style=\"font-weight: normal; font-size: x-small;\">ID</p>\n        <p><input type=\"text\" id=\"fieldID\" ng-model=\"msg.payload.id\" style=\"font-size: x-small;\" readonly></p>\n\n        <div ng-cloak>\n            <md-content>\n                <md-divider></md-divider>\n                <p></p>\n                <section layout=\"row\" layout-sm=\"column\" layout-align=\"space-between\" layout-wrap>\n                    <span>\n                        <md-button ng-click=\"addNote()\" aria-label=\"\" style=\"background-color:green;\"><i class=\"fa fa-plus fa-2x\"></i></md-button>\n                        <md-tooltip md-direction=\"top\">Add note</md-tooltip>\n                    </span>\n                    <span>\n                        <md-button ng-click=\"updNote()\" aria-label=\"\" style=\"background-color:blue;\"><i class=\"fa fa-exchange fa-2x\"></i></md-button>\n                        <md-tooltip md-direction=\"top\">Update note</md-tooltip>\n                    </span>\n                    <span>\n                        <md-button ng-click=\"delNote()\" aria-label=\"\" style=\"background-color:#ff5733;\"><i class=\"fa fa-trash fa-2x\"></i></md-button>\n                        <md-tooltip md-direction=\"top\">Delete note</md-tooltip>\n                    </span>\n                    <span>\n                        <md-button ng-click=\"cpyNote()\" aria-label=\"\" style=\"background-color:gray;\"><i class=\"fa fa-copy fa-2x\"></i></md-button>\n                        <md-tooltip md-direction=\"top\">Copy note</md-tooltip>\n                    </span>\n                    <span>\n                        <md-button ng-click=\"expNotes()\" aria-label=\"\" style=\"background-color:lime;\"><i class=\"fa fa-clipboard fa-2x\"></i></md-button>\n                        <md-tooltip md-direction=\"top\">Export notes text file</md-tooltip>\n                    </span>\n                </section>\n            </md-content>\n        </div>\n    </fieldset>\n</form>\n\n<script>\n    // Set the scope\n    scopeNote = scope;\n\n    // stringifyPayload(item)\n    (function(scope){\n        // Stringify the payload with extra space after comma\n        // Usage: {{stringifyPayload(item)}}\n        scope.stringifyPayload = function(item){\n            return JSON.stringify(item).replace(/,/g, ', ');\n        }\n\n        scope.addNote = function () {\n            var id = -1;\n            var subject = document.getElementById(\"fieldSubject\").value;\n            var content = document.getElementById(\"fieldContent\").value;\n            update(\"ADD\",id,subject,content);\n            console.log(\"ADDNOTE DONE\");\n        }\n        \n        scope.updNote = function () {\n            var id = document.getElementById(\"fieldID\").value;\n            var subject = document.getElementById(\"fieldSubject\").value;\n            var content = document.getElementById(\"fieldContent\").value;\n            update(\"UPD\",id,subject,content);\n        }\n\n        scope.delNote = function () {\n            var id = document.getElementById(\"fieldID\").value;\n            var subject = document.getElementById(\"fieldSubject\").value;\n            var content = document.getElementById(\"fieldContent\").value;\n            update(\"DEL\",id,subject,content);\n        }\n\n        scope.cpyNote = function () {\n            var id = document.getElementById(\"fieldID\").value;\n            var subject = document.getElementById(\"fieldSubject\").value;\n            var content = document.getElementById(\"fieldContent\").value;\n            var note = id + \"\\n\" + subject + \"\\n\" + content;\n            const el = document.createElement('textarea');\n            el.value = note;\n            el.setAttribute('readonly', '');\n            el.style.position = 'absolute';\n            el.style.left = '-9999px';\n            document.body.appendChild(el);\n            el.select();\n            document.execCommand('copy');\n            document.body.removeChild(el);\n            // Log the value copied\n            console.log(\"***CPYNOTE: \" + note.value);\n        }\n        \n        scope.expNotes = function () {\n            var id = document.getElementById(\"fieldID\").value;\n            var subject = document.getElementById(\"fieldSubject\").value;\n            var content = document.getElementById(\"fieldContent\").value;\n            update(\"EXP\",id,subject,content);\n        }\n        \n    })(scope);\n    \n    function update(action,id,subject,content) {\n        console.log(\"***UPDATE: \" + action + \",\" + id + \",\" + subject + \",\" + content);\n        data = {};\n        data.id = id;\n        data.subject = subject;\n        data.content = content;\n        scopeNote.send({topic:action, payload:data});\n    }\n\n</script>\n",
+        "storeOutMessages": false,
+        "fwdInMessages": false,
+        "resendOnRefresh": true,
+        "templateScope": "local",
+        "x": 990,
+        "y": 260,
+        "wires": [
+            [
+                "551186a4.1d1bb8"
+            ]
+        ]
+    },
+    {
+        "id": "551186a4.1d1bb8",
+        "type": "function",
+        "z": "ca9a4de3.6ed31",
+        "name": "Set Note",
+        "func": "/* Set the note depending action set as msg.topic \nADD: notes.push(item)\nUPD: notes[index] = item\nDEL: delete notes[index]\nafter note action, the full notes array is updated and returned to write to the notes file json format.\n*/\n// Get the debug flag\nconst DEBUG = flow.get(\"debug\");\n\n// Define the actions given from the msg.topic\nlet ADD = \"ADD\";\nlet UPD = \"UPD\";\nlet DEL = \"DEL\";\nlet EXP = \"EXP\";\n\n// Get the action from the topic\nvar action = msg.topic.toUpperCase();\n// Get the note fields from the payload\nvar id = parseInt(msg.payload.id);\nvar subject = msg.payload.subject;\nvar content = msg.payload.content;\n\n// Get all the notes\nvar notes = flow.get(\"notes\");\nif (DEBUG) node.warn(\"#NOTES: \" + notes.length);\n\n// Get the array index using the field id\nvar index = notes.findIndex(item => item.id === id);\nif (DEBUG) node.warn(\"Action:\" + action + \", ID=\" + id + \", Index=\" + index +\",Subject:\"+subject);\n\n// There must be a subject to take action\nif (subject !== \"\"){\n    // Create the new note object\n    obj = {};\n    obj[\"id\"] = id;\n    obj[\"subject\"] = subject;\n    obj[\"content\"] = content;\n    // if (DEBUG) node.warn(\"Note Obj:\" + obj.id);\n\n    // set the filename to the flow context for the file save node\n    msg.filename = flow.get(\"filename\");\n\n    // Create the notification msg\n    msgnotification = {};\n\n    //\n    if (action === ADD) {\n        // Get new id which is the max id + 1\n        if (notes.length > 0) {\n            obj[\"id\"] = Math.max.apply(Math, notes.map(function(o) { \n                return o.id;  \n            })) + 1; \n        } else {\n            obj[\"id\"] = 1;\n        }\n        if (DEBUG) node.warn(\"ADD: \" + obj.id +\",\"+obj.subject+\",\"+obj.content);\n        notes.push(obj);\n        // Assign the notes array to the return msg\n        msg.payload = notes;\n        // Set the notification message\n        msgnotification.topic = \"Added Note\";\n        msgnotification.payload = obj.subject;\n        // Set the last used id\n        flow.set(\"lastid\", obj.id);\n    }\n    //\n    if (action === UPD) {\n        if (index !== -1) {\n            if (DEBUG) node.warn(\"UPD: \" + obj.id +\",\"+obj.subject+\",\"+obj.content);\n            notes[index] = obj;\n            // Assign the notes array to the return msg\n            msg.payload = notes;\n            // Set the notification message\n            msgnotification.topic = \"Updated Note\";\n            msgnotification.payload = obj.subject;\n            // Set the last used id\n            flow.set(\"lastid\", obj.id);\n        }\n    }\n    //\n    if (action === DEL) {\n        if (index !== -1) {\n            if (DEBUG) node.warn(\"DEL: \" + obj.id +\",\"+obj.subject+\",index:\"+index + \",#:\" + notes.length);\n            notes.splice(index,1);\n            // Assign the notes array to the return msg\n            msg.payload = notes;\n            // Set the notification message\n            msgnotification.topic = \"Deleted Note\";\n            msgnotification.payload = obj.subject;\n            // Set the last used id\n            flow.set(\"lastid\", -1);\n        }\n    }\n    //\n    if (action === EXP) {\n        if (DEBUG) node.warn(\"EXP: #:\" + notes.length);\n        var allNotes = \"\";\n        if (notes.length > 0) {\n            notes.forEach(function(note){\n                allNotes = allNotes + \"\\n\" + \n                    note.id + \"\\n\" + note.subject + \"\\n\" + note.content + \"\\n\";\n            });\n        }\n        // assign the notes array to the return msg\n        msg.payload = allNotes;\n        // set the filename to the flow context for the file save node\n        msg.filename = flow.get(\"filename\").toLowerCase().replace(\".json\",\".exp\");\n        // Set the notification message\n        msgnotification.topic = \"Exported All Notes\";\n        msgnotification.payload = msg.filename;\n    }\n\n    if (DEBUG) node.warn(msg.topic + \" to \" + msg.filename);\n    return [msg,msgnotification];\n}\n",
+        "outputs": 2,
+        "noerr": 0,
+        "x": 740,
+        "y": 320,
+        "wires": [
+            [
+                "5ca03c66.c9a78c"
+            ],
+            [
+                "8bf6ddd0.f6b2a8"
+            ]
+        ]
+    },
+    {
+        "id": "2ff86b42.d93174",
+        "type": "change",
+        "z": "ca9a4de3.6ed31",
+        "name": "Set Flow Context",
+        "rules": [
+            {
+                "t": "set",
+                "p": "filename",
+                "pt": "flow",
+                "to": "/home/pi/notes.json",
+                "tot": "str"
+            },
+            {
+                "t": "set",
+                "p": "filename",
+                "pt": "msg",
+                "to": "filename",
+                "tot": "flow"
+            },
+            {
+                "t": "set",
+                "p": "notes",
+                "pt": "flow",
+                "to": "[]",
+                "tot": "json"
+            },
+            {
+                "t": "set",
+                "p": "debug",
+                "pt": "flow",
+                "to": "false",
+                "tot": "bool"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 290,
+        "y": 80,
+        "wires": [
+            [
+                "a30c7f2d.9314c"
+            ]
+        ]
+    },
+    {
+        "id": "42976c79.f977e4",
+        "type": "delay",
+        "z": "ca9a4de3.6ed31",
+        "name": "",
+        "pauseType": "delay",
+        "timeout": "2",
+        "timeoutUnits": "milliseconds",
+        "rate": "1",
+        "nbRateUnits": "1",
+        "rateUnits": "second",
+        "randomFirst": "1",
+        "randomLast": "5",
+        "randomUnits": "seconds",
+        "drop": false,
+        "x": 310,
+        "y": 320,
+        "wires": [
+            [
+                "b901aa26.9d785"
+            ]
+        ]
+    },
+    {
+        "id": "62cc36b4.cddfe8",
+        "type": "file",
+        "z": "ca9a4de3.6ed31",
+        "name": "Export Notes Text File",
+        "filename": "",
+        "appendNewline": true,
+        "createDir": false,
+        "overwriteFile": "true",
+        "encoding": "none",
+        "x": 1020,
+        "y": 400,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "5ca03c66.c9a78c",
+        "type": "switch",
+        "z": "ca9a4de3.6ed31",
+        "name": "Select Export",
+        "property": "topic",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "neq",
+                "v": "EXP",
+                "vt": "str"
+            },
+            {
+                "t": "eq",
+                "v": "EXP",
+                "vt": "str"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 2,
+        "x": 750,
+        "y": 380,
+        "wires": [
+            [
+                "42976c79.f977e4"
+            ],
+            [
+                "62cc36b4.cddfe8"
+            ]
+        ]
+    },
+    {
+        "id": "8bf6ddd0.f6b2a8",
+        "type": "ui_toast",
+        "z": "ca9a4de3.6ed31",
+        "position": "top right",
+        "displayTime": "3",
+        "highlight": "",
+        "sendall": true,
+        "outputs": 0,
+        "ok": "OK",
+        "cancel": "",
+        "raw": false,
+        "topic": "",
+        "name": "Show Selected Action",
+        "x": 1020,
+        "y": 320,
+        "wires": []
+    },
+    {
+        "id": "3274571d.5c8b58",
+        "type": "catch",
+        "z": "ca9a4de3.6ed31",
+        "name": "Catch Read File",
+        "scope": [
+            "a30c7f2d.9314c"
+        ],
+        "uncaught": false,
+        "x": 500,
+        "y": 80,
+        "wires": [
+            [
+                "b144f659.6254d"
+            ]
+        ]
+    },
+    {
+        "id": "b636a303.d8b0c",
+        "type": "ui_dropdown",
+        "z": "ca9a4de3.6ed31",
+        "name": "Select Note",
+        "label": "",
+        "tooltip": "",
+        "place": "Select option",
+        "group": "3a6fe6f6.6b3bc2",
+        "order": 1,
+        "width": 0,
+        "height": 0,
+        "passthru": true,
+        "multiple": false,
+        "options": [
+            {
+                "label": "",
+                "value": "",
+                "type": "str"
+            }
+        ],
+        "payload": "",
+        "topic": "",
+        "x": 710,
+        "y": 200,
+        "wires": [
+            [
+                "66df07cd.154858"
+            ]
+        ]
+    },
+    {
+        "id": "5ac0604d.b6408",
+        "type": "ui_ui_control",
+        "z": "ca9a4de3.6ed31",
+        "name": "",
+        "events": "connect",
+        "x": 100,
+        "y": 140,
+        "wires": [
+            [
+                "2ff86b42.d93174"
+            ]
+        ],
+        "info": "Refresh the list in case page is reloaded/refreshed.\n"
+    },
+    {
+        "id": "3a6fe6f6.6b3bc2",
+        "type": "ui_group",
+        "z": "",
+        "name": "Notes",
+        "tab": "d8d885df.e15fd",
+        "order": 1,
+        "disp": false,
+        "width": "6",
+        "collapse": false
+    },
+    {
+        "id": "d8d885df.e15fd",
+        "type": "ui_tab",
+        "z": "",
+        "name": "Notes Mobile",
+        "icon": "dashboard",
+        "order": 7,
+        "disabled": false,
+        "hidden": false
+    }
+]
