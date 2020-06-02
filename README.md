@@ -13,7 +13,7 @@
 ## Solution
 Node-RED selected as the development tool running on a Raspberry Pi.
 Two flows are defined, one for mobile use (smartphone) and the other for larger screen, i.e. desktop or tablet.
-The flow functionality is the same, except the definition of the form to manage the notes.
+The desktop has some more functions.
 **Functionality**
 * Form with fields **Subject** (input), **Content** (textarea), **ID** (input readonly, created automatically)
 * Note selection list - mobile: dropdown (ui_dropdown), desktop: list (ui_template)
@@ -27,11 +27,11 @@ The flow functionality is the same, except the definition of the form to manage 
 
 The notes are stored in a single text file in JSON format, located by default in the folder: /home/pi/notes.json
 
-Note: pi is the username used.
+_Note_: pi is the username used.
 
 The JSON format, is an array with note objects:
 ```
-[{},{}].
+[{note 1},{note N}].
 ```
 Each note has three properties:
 ```
