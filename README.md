@@ -23,7 +23,7 @@ The flow functionality is the same, except the definition of the form to manage 
 	* Delete the selected note
 	* Copy the selected note to the clipboard
 	* Export all notes to a text file (with extention .exp) located in the notes folder
-	* Clear all notes
+	* Clear all notes (Desktop only)
 
 The notes are stored in a single text file in JSON format, located by default in the folder: /home/pi/notes.json
 
