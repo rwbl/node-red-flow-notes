@@ -35,16 +35,13 @@ Each note has three properties:
 {"id":NN,"subject":"SUBJECT","content":"CONTENT"}
 ```
 
-Instead installing on a Raspberry Pi any other hardware can be used.
-_Note_: Application error handling is not fully covered.
-
 ## Hardware
 * Raspberry Pi 3B+
 
 ## Software
 * Raspian OS - Raspbian GNU/Linux 10 (buster)
 * Node-RED v1.0.6, node-red-dashboard v2.22.1
-_Note:_ versions are subject to change.
+_Note:_ The software versions are subject to change.
 
 ## Flows
 The flow are stored in the files:
@@ -56,3 +53,6 @@ Import the flows into Node-RED, either both or mobile / desktop only.
 The Node-RED tabs created are **Notes Mobile** and/or **Notes Desktop**.
 Depending username used, the path to the notes file has to be adjusted (Function node "Set Flow Context, Set flow.filename). Default is user "pi".
 
+**Notes**
+* Instead installing on a Raspberry Pi any other hardware can be used.
+* Application error handling is not fully covered.
