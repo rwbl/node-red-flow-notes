@@ -5,6 +5,10 @@
 * The application should be simple with few input fields and buttons to add, update, delete and export notes.
 * The notes to be stored in a text file in JSON format.
 * The application to run on a Raspberry Pi.
+* The application is for Private Use only. 
+
+![node-red-flow-notes-d](https://user-images.githubusercontent.com/47274144/83492516-ad311e00-a4b3-11ea-94c5-094b1fcdde28.png)
+![node-red-flow-notes-m](https://user-images.githubusercontent.com/47274144/83492522-b02c0e80-a4b3-11ea-8935-020c4a256f9b.png)
 
 ## Solution
 Node-RED selected as the development tool running on a Raspberry Pi.
@@ -24,7 +28,7 @@ The notes are stored in a single text file in JSON format, located as default in
 ```
 /home/pi/notes.json
 ```
-Pi is the username used.
+Note: pi is the username used.
 The JSON format, is an array with note objects. Each note has properties:
 ```
 {"id":NN,"subject":"SUBJECT","content":"CONTENT"}
