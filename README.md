@@ -25,8 +25,10 @@ The flow functionality is the same, except the definition of the form to manage 
 	* Export all notes to a text file (with extention .exp) located in the notes folder
 	* Clear all notes
 
-The notes are stored in a single text file in JSON format, located as default in the folder: /home/pi/notes.json
+The notes are stored in a single text file in JSON format, located by default in the folder: /home/pi/notes.json
+
 Note: pi is the username used.
+
 The JSON format, is an array with note objects:
 ```
 [{},{}].
